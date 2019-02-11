@@ -13,12 +13,13 @@ import (
 type BasicApp struct {
 }
 
-func (app BasicApp) Create(settings tge.Settings) error {
+func (app BasicApp) Create(settings *tge.Settings) error {
 	log.Println("Create()")
+	settings.Name = "BasicApp"
 	return nil
 }
 
-func (app BasicApp) Start(runtime tge.Runtime) error {
+func (app BasicApp) Start() error {
 	log.Println("Start()")
 	return nil
 }
@@ -43,16 +44,16 @@ func (app BasicApp) Pause() {
 	log.Println("Pause()")
 }
 
+func (app BasicApp) Stop() {
+	log.Println("Stop()")
+}
+
 func (app BasicApp) Dispose() error {
 	log.Println("Dispose()")
 	return nil
 }
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-}
-
 func main() {
 	app := BasicApp{}
-	tge.Instanciate(app)
+	tge.Run(app)
 }

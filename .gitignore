@@ -15,3 +15,5 @@
 
 #GOPATH
 go/
+src/
+pkg/
