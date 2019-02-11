@@ -18,8 +18,8 @@ if [ ! -d "$PROJECTS_PATH/$PROJECT" ] ; then
 fi
 
 if [ $TARGET == "desktop" ] ; then
-    echo "Building $PROJECT for desktop ..."
-    cd $PROJECTS_PATH/$PROJECT
+    echo "Building $PROJECT for desktop ..."  
+    cd $PROJECTS_PATH/$PROJECT  
     go build
     cd -
 elif [ $TARGET == "android" ] ; then
@@ -28,6 +28,9 @@ elif [ $TARGET == "ios" ] ; then
     echo "Building $PROJECT for ios ..."
 elif [ $TARGET == "browser" ] ; then
     echo "Building $PROJECT for browser ..."
+    cd $PROJECTS_PATH/$PROJECT
+    GOARCH=js GOOS=browser go build
+    cd -
 else
     echo "Unsupported target : $TARGET"
 fi
