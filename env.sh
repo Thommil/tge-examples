@@ -1,7 +1,11 @@
 #!/bin/sh
-    
-export GOPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export PATH=$PATH:$GOPATH/bin
-export GO111MODULE=off
 
-go get -u github.com/thommil/tge
+if [ "$GO111MODULE" == "on" ] ; then
+    export GOPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/go"
+    echo "Retrieving dependencies ..."
+    go get -u github.com/thommil/tge@develop
+else
+    export GOPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    go get -u github.com/thommil/tge
+    cd src/github.com/thommil/tge && git checkout develop && cd -
+fi
