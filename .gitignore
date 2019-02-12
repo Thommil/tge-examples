@@ -13,7 +13,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-#GOPATH
+#GO/TGE env
+bin/
 go/
 src/
 pkg/
+tge-builder/
