@@ -8,5 +8,6 @@ else
     export GO111MODULE=on
 fi
 
+echo "Retrieving dependencies ..."
 go get -u github.com/thommil/tge
 export PATH=$PATH:$GOPATH/bin
