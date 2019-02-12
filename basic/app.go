@@ -13,42 +13,43 @@ import (
 type BasicApp struct {
 }
 
-func (app BasicApp) Create(settings *tge.Settings) error {
+func (app BasicApp) OnCreate(settings *tge.Settings) error {
 	log.Println("Create()")
 	settings.Name = "BasicApp"
+	settings.Fullscreen = true
 	return nil
 }
 
-func (app BasicApp) Start() error {
+func (app BasicApp) OnStart(runtime tge.Runtime) error {
 	log.Println("Start()")
 	return nil
 }
 
-func (app BasicApp) Resize(width int, height int) {
-	log.Println("Resize()")
+func (app BasicApp) OnResize(width int, height int) {
+	log.Printf("Resize(%d, %d)\n", width, height)
 }
 
-func (app BasicApp) Resume() {
+func (app BasicApp) OnResume() {
 	log.Println("Resume()")
 }
 
-func (app BasicApp) Render(renderer renderer.Renderer, ui ui.UI, player player.Player) {
+func (app BasicApp) OnRender(renderer renderer.Renderer, ui ui.UI, player player.Player) {
 	log.Println("Render()")
 }
 
-func (app BasicApp) Tick(physics physics.Physics) {
+func (app BasicApp) OnTick(physics physics.Physics) {
 	log.Println("Tick()")
 }
 
-func (app BasicApp) Pause() {
+func (app BasicApp) OnPause() {
 	log.Println("Pause()")
 }
 
-func (app BasicApp) Stop() {
+func (app BasicApp) OnStop() {
 	log.Println("Stop()")
 }
 
-func (app BasicApp) Dispose() error {
+func (app BasicApp) OnDispose() error {
 	log.Println("Dispose()")
 	return nil
 }
