@@ -17,8 +17,8 @@ func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 	log.Println("OnCreate()")
 	settings.Name = "LifeCycle"
 	settings.Fullscreen = false
-	settings.Renderer.FPS = 1
-	settings.Physics.TPS = 2
+	settings.Renderer.FPS = 2
+	settings.Physics.TPS = 4
 	return nil
 }
 
@@ -39,6 +39,7 @@ func (app *LifeCycle) OnResume() {
 func (app *LifeCycle) OnRender(elapsedTime time.Duration) {
 	log.Printf("OnRender(%v)\n", elapsedTime)
 	app.FPSCounter++
+	time.Sleep(100 * time.Millisecond)
 	if app.FPSCounter > 10 {
 		app.Runtime.Stop()
 	}
