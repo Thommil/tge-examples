@@ -2,23 +2,23 @@ package main
 
 import (
 	log "log"
-	"time"
+	sync "sync"
+	time "time"
 
 	tge "github.com/thommil/tge"
 )
 
 type LifeCycle struct {
-	Runtime    tge.Runtime
-	FPSCounter int
-	TPSCounter int
+	Runtime tge.Runtime
+	Counter int
 }
 
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 	log.Println("OnCreate()")
 	settings.Name = "LifeCycle"
 	settings.Fullscreen = false
-	settings.Renderer.FPS = 2
-	settings.Physics.TPS = 4
+	settings.FPS = 1
+	settings.TPS = 2
 	return nil
 }
 
@@ -36,18 +36,36 @@ func (app *LifeCycle) OnResume() {
 	log.Println("OnResume()")
 }
 
-func (app *LifeCycle) OnRender(elapsedTime time.Duration) {
+func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
+	// Simulate critical path
+	locker.Lock()
 	log.Printf("OnRender(%v)\n", elapsedTime)
-	app.FPSCounter++
-	time.Sleep(100 * time.Millisecond)
-	if app.FPSCounter > 10 {
+	time.Sleep(50 * time.Millisecond)
+	app.Counter++
+	log.Printf("Render -> Counter : (%v)\n", app.Counter)
+	locker.Unlock()
+
+	// Simulate heavy treatment
+	time.Sleep(500 * time.Millisecond)
+
+	// Test stop
+	if app.Counter > 20 {
 		app.Runtime.Stop()
 	}
+
 }
 
-func (app *LifeCycle) OnTick(elapsedTime time.Duration) {
+func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
+	// Simulate heavy treatment
+	time.Sleep(100 * time.Millisecond)
+
+	// Simulate critical path
+	locker.Lock()
 	log.Printf("OnTick(%v)\n", elapsedTime)
-	app.TPSCounter++
+	time.Sleep(50 * time.Millisecond)
+	app.Counter++
+	log.Printf("Ticker -> Counter : (%v)\n", app.Counter)
+	locker.Unlock()
 }
 
 func (app *LifeCycle) OnPause() {
