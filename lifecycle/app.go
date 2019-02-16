@@ -1,7 +1,7 @@
 package main
 
 import (
-	log "log"
+	fmt "fmt"
 	sync "sync"
 	time "time"
 
@@ -16,7 +16,7 @@ type LifeCycle struct {
 }
 
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
-	log.Println("OnCreate()")
+	fmt.Println("OnCreate()")
 	settings.Name = "LifeCycle"
 	settings.Fullscreen = false
 	settings.FPS = 10
@@ -25,24 +25,24 @@ func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 }
 
 func (app *LifeCycle) OnStart(runtime tge.Runtime) error {
-	log.Println("OnStart()")
+	fmt.Println("OnStart()")
 	app.Runtime = runtime
 	return nil
 }
 
 func (app *LifeCycle) OnResize(width int, height int) {
-	log.Printf("OnResize(%d, %d)\n", width, height)
+	fmt.Printf("OnResize(%d, %d)\n", width, height)
 }
 
 func (app *LifeCycle) OnResume() {
-	log.Println("OnResume()")
+	fmt.Println("OnResume()")
 }
 
 func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
 	// Simulate critical path
 	locker.Lock()
 	app.totalRender += elapsedTime
-	log.Printf("OnRender(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalRender)
+	fmt.Printf("OnRender(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalRender)
 	app.Counter++
 	time.Sleep(1 * time.Millisecond)
 	locker.Unlock()
@@ -50,6 +50,10 @@ func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
 	// Simulate heavy treatment
 	time.Sleep(4 * time.Millisecond)
 
+	// Test stop
+	if app.Counter > 100 {
+		app.Runtime.Stop()
+	}
 }
 
 func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
@@ -59,26 +63,23 @@ func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
 	// Simulate critical path
 	locker.Lock()
 	app.totalTick += elapsedTime
-	log.Printf("OnTick(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalTick)
+	fmt.Printf("OnTick(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalTick)
 	app.Counter++
 	time.Sleep(1 * time.Millisecond)
 	locker.Unlock()
-	// Test stop
-	if app.Counter > 10000 {
-		app.Runtime.Stop()
-	}
+
 }
 
 func (app *LifeCycle) OnPause() {
-	log.Println("OnPause()")
+	fmt.Println("OnPause()")
 }
 
 func (app *LifeCycle) OnStop() {
-	log.Println("OnStop()")
+	fmt.Println("OnStop()")
 }
 
 func (app *LifeCycle) OnDispose() error {
-	log.Println("OnDispose()")
+	fmt.Println("OnDispose()")
 	return nil
 }
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	log "log"
+	fmt "fmt"
 	sync "sync"
 	time "time"
 
@@ -14,55 +14,53 @@ type LifeCycle struct {
 }
 
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
-	log.Println("OnCreate()")
+	fmt.Println("OnCreate()")
 	settings.Name = "GL"
 	settings.Fullscreen = false
 	settings.FPS = 10
 	settings.TPS = 10
+
 	return nil
 }
 
 func (app *LifeCycle) OnStart(runtime tge.Runtime) error {
-	log.Println("OnStart()")
+	fmt.Println("OnStart()")
 	app.Runtime = runtime
 
-	err := gl.Init(runtime)
-	if err != nil {
-		return err
-	}
+	runtime.Use(gl.GetPlugin())
 
 	return nil
 }
 
 func (app *LifeCycle) OnResize(width int, height int) {
-	log.Printf("OnResize(%d, %d)\n", width, height)
+	fmt.Printf("OnResize(%d, %d)\n", width, height)
 }
 
 func (app *LifeCycle) OnResume() {
-	log.Println("OnResume()")
+	fmt.Println("OnResume()")
 	gl.ClearColor(0.15, 0.04, 0.15, 1)
 }
 
 func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
-	log.Printf("OnRender(%v)\n", elapsedTime)
+	fmt.Printf("OnRender(%v)\n", elapsedTime)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 }
 
 func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
-	log.Printf("OnTick(%v)\n", elapsedTime)
+	fmt.Printf("OnTick(%v)\n", elapsedTime)
 
 }
 
 func (app *LifeCycle) OnPause() {
-	log.Println("OnPause()")
+	fmt.Println("OnPause()")
 }
 
 func (app *LifeCycle) OnStop() {
-	log.Println("OnStop()")
+	fmt.Println("OnStop()")
 }
 
 func (app *LifeCycle) OnDispose() error {
-	log.Println("OnDispose()")
+	fmt.Println("OnDispose()")
 	return nil
 }
 
