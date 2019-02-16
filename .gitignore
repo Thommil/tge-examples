@@ -18,4 +18,4 @@ bin/
 go/
 src/
 pkg/
-tge-builder/
+**/dist
