@@ -22,7 +22,7 @@ type LifeCycle struct {
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GL"
-	settings.Fullscreen = false
+	settings.Fullscreen = true
 	settings.FPS = 100
 	settings.TPS = 100
 
