@@ -6,18 +6,16 @@ import (
 	time "time"
 
 	tge "github.com/thommil/tge"
+	gl "github.com/thommil/tge-gl"
 )
 
 type LifeCycle struct {
-	Runtime     tge.Runtime
-	Counter     int
-	totalTick   time.Duration
-	totalRender time.Duration
+	Runtime tge.Runtime
 }
 
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 	log.Println("OnCreate()")
-	settings.Name = "LifeCycle"
+	settings.Name = "GL"
 	settings.Fullscreen = false
 	settings.FPS = 10
 	settings.TPS = 10
@@ -27,6 +25,12 @@ func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 func (app *LifeCycle) OnStart(runtime tge.Runtime) error {
 	log.Println("OnStart()")
 	app.Runtime = runtime
+
+	err := gl.Init(runtime)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -36,37 +40,17 @@ func (app *LifeCycle) OnResize(width int, height int) {
 
 func (app *LifeCycle) OnResume() {
 	log.Println("OnResume()")
+	gl.ClearColor(0.15, 0.04, 0.15, 1)
 }
 
 func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
-	// Simulate critical path
-	locker.Lock()
-	app.totalRender += elapsedTime
-	log.Printf("OnRender(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalRender)
-	app.Counter++
-	time.Sleep(1 * time.Millisecond)
-	locker.Unlock()
-
-	// Simulate heavy treatment
-	time.Sleep(4 * time.Millisecond)
-
+	log.Printf("OnRender(%v)\n", elapsedTime)
+	gl.Clear(gl.COLOR_BUFFER_BIT)
 }
 
 func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
-	// Simulate heavy treatment
-	time.Sleep(4 * time.Millisecond)
+	log.Printf("OnTick(%v)\n", elapsedTime)
 
-	// Simulate critical path
-	locker.Lock()
-	app.totalTick += elapsedTime
-	log.Printf("OnTick(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalTick)
-	app.Counter++
-	time.Sleep(1 * time.Millisecond)
-	locker.Unlock()
-	// Test stop
-	if app.Counter > 10000 {
-		app.Runtime.Stop()
-	}
 }
 
 func (app *LifeCycle) OnPause() {
