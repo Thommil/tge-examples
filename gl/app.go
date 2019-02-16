@@ -10,15 +10,21 @@ import (
 )
 
 type LifeCycle struct {
-	Runtime tge.Runtime
+	Runtime        tge.Runtime
+	TPSStartTime   time.Time
+	TPSPrinterTime time.Time
+	FPSStartTime   time.Time
+	FPSPrinterTime time.Time
+	TPSCounter     float64
+	FPSCounter     float64
 }
 
 func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GL"
 	settings.Fullscreen = false
-	settings.FPS = 10
-	settings.TPS = 10
+	settings.FPS = 100
+	settings.TPS = 100
 
 	return nil
 }
@@ -39,16 +45,31 @@ func (app *LifeCycle) OnResize(width int, height int) {
 func (app *LifeCycle) OnResume() {
 	fmt.Println("OnResume()")
 	gl.ClearColor(0.15, 0.04, 0.15, 1)
+	app.TPSStartTime = time.Now()
+	app.FPSStartTime = time.Now()
+	app.FPSPrinterTime = time.Now().Add(10 * time.Second)
+	app.TPSPrinterTime = time.Now().Add(10 * time.Second)
+	app.TPSCounter = 0
+	app.FPSCounter = 0
 }
 
-func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
-	fmt.Printf("OnRender(%v)\n", elapsedTime)
+func (app *LifeCycle) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
+	now := time.Now()
+	app.FPSCounter++
+	if now.After(app.FPSPrinterTime) {
+		fmt.Printf("%f FPS\n", app.FPSCounter/now.Sub(app.FPSStartTime).Seconds())
+		app.FPSPrinterTime = now.Add(10 * time.Second)
+	}
 }
 
-func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
-	fmt.Printf("OnTick(%v)\n", elapsedTime)
-
+func (app *LifeCycle) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
+	now := time.Now()
+	app.TPSCounter++
+	if now.After(app.TPSPrinterTime) {
+		fmt.Printf("%f TPS\n", app.TPSCounter/now.Sub(app.TPSStartTime).Seconds())
+		app.TPSPrinterTime = now.Add(10 * time.Second)
+	}
 }
 
 func (app *LifeCycle) OnPause() {

@@ -38,35 +38,35 @@ func (app *LifeCycle) OnResume() {
 	fmt.Println("OnResume()")
 }
 
-func (app *LifeCycle) OnRender(elapsedTime time.Duration, locker sync.Locker) {
+func (app *LifeCycle) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	// Simulate critical path
-	locker.Lock()
+	mutex.Lock()
 	app.totalRender += elapsedTime
 	fmt.Printf("OnRender(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalRender)
 	app.Counter++
 	time.Sleep(1 * time.Millisecond)
-	locker.Unlock()
+	mutex.Unlock()
 
 	// Simulate heavy treatment
 	time.Sleep(4 * time.Millisecond)
 
 	// Test stop
-	if app.Counter > 100 {
+	if app.Counter > 1000 {
 		app.Runtime.Stop()
 	}
 }
 
-func (app *LifeCycle) OnTick(elapsedTime time.Duration, locker sync.Locker) {
+func (app *LifeCycle) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 	// Simulate heavy treatment
 	time.Sleep(4 * time.Millisecond)
 
 	// Simulate critical path
-	locker.Lock()
+	mutex.Lock()
 	app.totalTick += elapsedTime
 	fmt.Printf("OnTick(%v) - counter : %d - Total : %d \n", elapsedTime, app.Counter, app.totalTick)
 	app.Counter++
 	time.Sleep(1 * time.Millisecond)
-	locker.Unlock()
+	mutex.Unlock()
 
 }
 
