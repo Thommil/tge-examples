@@ -8,11 +8,11 @@
     platformBuildVersionName="4.0.4-1406430">
 
     <application
-        android:label="GL"
+        android:label="Untitled"
         android:debuggable="true">
 
         <activity
-            android:label="GL"
+            android:label="Untitled"
             android:name="org.golang.app.GoNativeActivity"
             android:configChanges="0xa0">
 
