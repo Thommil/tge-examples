@@ -8,6 +8,8 @@ github.com/thommil/tge v0.0.0-20190216215825-9ccd3153d8e2 h1:fF8fPSIk054sc5LT8kP
 github.com/thommil/tge v0.0.0-20190216215825-9ccd3153d8e2/go.mod h1:sWYKXIw8ZrX39iJpp4kBa+FINg3KYZthjYcnIQrDadI=
 github.com/thommil/tge v0.0.0-20190217124403-146c070ee8c2 h1:3W8vRtldOwp6+9av9tzwhytm27H70mFhNon54GTlZ9c=
 github.com/thommil/tge v0.0.0-20190217124403-146c070ee8c2/go.mod h1:sWYKXIw8ZrX39iJpp4kBa+FINg3KYZthjYcnIQrDadI=
+github.com/thommil/tge v0.0.0-20190217134737-82dd88d13bac h1:LOeI3hRiDk8lwy/5uYPiRSsdVGXGRUSt990rxi61T2Y=
+github.com/thommil/tge v0.0.0-20190217134737-82dd88d13bac/go.mod h1:sWYKXIw8ZrX39iJpp4kBa+FINg3KYZthjYcnIQrDadI=
 github.com/thommil/tge-gl v0.0.0-20190216220033-689c96c48b43 h1:OwnX1417y9aUTKFRhSK1MhMKbi6tYg+fUPwgO/h2+5s=
 github.com/thommil/tge-gl v0.0.0-20190216220033-689c96c48b43/go.mod h1:eN9Mo0i8kNp0pg9Cy8HNwZBfAqd3NpgA36R192xGWsg=
 github.com/thommil/tge-gl v0.0.0-20190216220216-61da98845c67 h1:JNjAiRbHUg8O/w93LswbYD39H8k2v/s7vo0v7c+FXY0=
