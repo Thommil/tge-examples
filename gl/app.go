@@ -25,7 +25,7 @@ type GL struct {
 func (app *GL) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GL"
-	settings.Fullscreen = true
+	settings.Fullscreen = false
 	settings.FPS = 100
 	settings.TPS = 100
 
@@ -138,9 +138,6 @@ func (app *GL) initBuffers() {
 	fmt.Println("initBuffers()")
 	//// VERTEX BUFFER ////
 	var vertices = []float32{
-		// -0.5, 0.5,
-		// -0.5, -0.5,
-		// 0.5, -0.5,
 		-1.0, -1.0,
 		1.0, -1.0,
 		0.0, 1.0,
