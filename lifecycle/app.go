@@ -51,7 +51,7 @@ func (app *LifeCycle) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	time.Sleep(4 * time.Millisecond)
 
 	// Test stop
-	if app.Counter > 1000 {
+	if app.Counter > 100 {
 		app.Runtime.Stop()
 	}
 }
