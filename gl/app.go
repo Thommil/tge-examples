@@ -26,8 +26,8 @@ func (app *GL) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GL"
 	settings.Fullscreen = false
-	settings.FPS = 100
-	settings.TPS = 100
+	settings.FPS = 500
+	settings.TPS = 500
 
 	return nil
 }
@@ -85,10 +85,9 @@ func (app *GL) initProgram() {
 	//// Shaders ////
 
 	// Vertex shader source code
-	vertCode := `
-	attribute vec2 coordinates;
+	vertCode := `attribute vec2 coordinates;
 		
-	void main(void) {
+	void main() {
 		gl_Position = vec4(coordinates, 0.0, 1.0);
 	}`
 
@@ -102,8 +101,14 @@ func (app *GL) initProgram() {
 	gl.CompileShader(vertShader)
 
 	//fragment shader source code
-	fragCode := `
-	void main(void) {
+	fragCode := `#ifdef GL_ES
+		#define LOWP lowp
+		precision mediump float;
+	#else
+		#define LOWP
+	#endif
+	
+	void main() {
 		gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 	}`
 
