@@ -9,7 +9,7 @@ import (
 	gl "github.com/thommil/tge-gl"
 )
 
-type GL struct {
+type GLApp struct {
 	Runtime        tge.Runtime
 	TPSStartTime   time.Time
 	TPSPrinterTime time.Time
@@ -22,17 +22,17 @@ type GL struct {
 	indexBuffer    gl.Buffer
 }
 
-func (app *GL) OnCreate(settings *tge.Settings) error {
+func (app *GLApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
-	settings.Name = "GL"
+	settings.Name = "GLApp"
 	settings.Fullscreen = false
 	settings.FPS = 500
 	settings.TPS = 500
-
+	settings.EventMask = tge.AllEventsDisable
 	return nil
 }
 
-func (app *GL) OnStart(runtime tge.Runtime) error {
+func (app *GLApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.Runtime = runtime
 
@@ -44,12 +44,12 @@ func (app *GL) OnStart(runtime tge.Runtime) error {
 	return nil
 }
 
-func (app *GL) OnResize(width int, height int) {
+func (app *GLApp) OnResize(width int, height int) {
 	fmt.Printf("OnResize(%d, %d)\n", width, height)
 	gl.Viewport(0, 0, width, height)
 }
 
-func (app *GL) OnResume() {
+func (app *GLApp) OnResume() {
 	fmt.Println("OnResume()")
 	app.TPSStartTime = time.Now()
 	app.FPSStartTime = time.Now()
@@ -61,7 +61,7 @@ func (app *GL) OnResume() {
 	gl.ClearColor(0.15, 0.04, 0.15, 1)
 }
 
-func (app *GL) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *GLApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	app.draw()
 	now := time.Now()
 	app.FPSCounter++
@@ -71,7 +71,7 @@ func (app *GL) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	}
 }
 
-func (app *GL) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *GLApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 	now := time.Now()
 	app.TPSCounter++
 	if now.After(app.TPSPrinterTime) {
@@ -80,7 +80,7 @@ func (app *GL) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 	}
 }
 
-func (app *GL) initProgram() {
+func (app *GLApp) initProgram() {
 	fmt.Println("initProgram()")
 	//// Shaders ////
 
@@ -109,7 +109,7 @@ func (app *GL) initProgram() {
 	#endif
 	
 	void main() {
-		gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+		gl_FragColor = vec4(0.85, 0.8, 0.8, 1.0);
 	}`
 
 	// Create fragment shader object
@@ -139,7 +139,7 @@ func (app *GL) initProgram() {
 
 }
 
-func (app *GL) initBuffers() {
+func (app *GLApp) initBuffers() {
 	fmt.Println("initBuffers()")
 	//// VERTEX BUFFER ////
 	var vertices = []float32{
@@ -179,7 +179,7 @@ func (app *GL) initBuffers() {
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.BufferNone)
 }
 
-func (app *GL) draw() {
+func (app *GLApp) draw() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// Bind vertex buffer object
@@ -202,19 +202,31 @@ func (app *GL) draw() {
 	gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_BYTE, 0)
 }
 
-func (app *GL) OnPause() {
+func (app *GLApp) OnMouseEvent(event tge.MouseEvent) {
+	// NOP
+}
+
+func (app *GLApp) OnScrollEvent(event tge.ScrollEvent) {
+	// NOP
+}
+
+func (app *GLApp) OnKeyEvent(event tge.KeyEvent) {
+	// NOP
+}
+
+func (app *GLApp) OnPause() {
 	fmt.Println("OnPause()")
 }
 
-func (app *GL) OnStop() {
+func (app *GLApp) OnStop() {
 	fmt.Println("OnStop()")
 }
 
-func (app *GL) OnDispose() error {
+func (app *GLApp) OnDispose() error {
 	fmt.Println("OnDispose()")
 	return nil
 }
 
 func main() {
-	tge.Run(&GL{})
+	tge.Run(&GLApp{})
 }

@@ -8,37 +8,38 @@ import (
 	tge "github.com/thommil/tge"
 )
 
-type LifeCycle struct {
+type LifeCycleApp struct {
 	Runtime     tge.Runtime
 	Counter     int
 	totalTick   time.Duration
 	totalRender time.Duration
 }
 
-func (app *LifeCycle) OnCreate(settings *tge.Settings) error {
+func (app *LifeCycleApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
-	settings.Name = "LifeCycle"
+	settings.Name = "LifeCycleApp"
 	settings.Fullscreen = false
 	settings.FPS = 10
 	settings.TPS = 10
+	settings.EventMask = tge.AllEventsDisable
 	return nil
 }
 
-func (app *LifeCycle) OnStart(runtime tge.Runtime) error {
+func (app *LifeCycleApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.Runtime = runtime
 	return nil
 }
 
-func (app *LifeCycle) OnResize(width int, height int) {
+func (app *LifeCycleApp) OnResize(width int, height int) {
 	fmt.Printf("OnResize(%d, %d)\n", width, height)
 }
 
-func (app *LifeCycle) OnResume() {
+func (app *LifeCycleApp) OnResume() {
 	fmt.Println("OnResume()")
 }
 
-func (app *LifeCycle) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *LifeCycleApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	// Simulate critical path
 	mutex.Lock()
 	app.totalRender += elapsedTime
@@ -56,7 +57,7 @@ func (app *LifeCycle) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	}
 }
 
-func (app *LifeCycle) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *LifeCycleApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 	// Simulate heavy treatment
 	time.Sleep(4 * time.Millisecond)
 
@@ -70,19 +71,31 @@ func (app *LifeCycle) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 
 }
 
-func (app *LifeCycle) OnPause() {
+func (app *LifeCycleApp) OnMouseEvent(event tge.MouseEvent) {
+	// NOP
+}
+
+func (app *LifeCycleApp) OnScrollEvent(event tge.ScrollEvent) {
+	// NOP
+}
+
+func (app *LifeCycleApp) OnKeyEvent(event tge.KeyEvent) {
+	// NOP
+}
+
+func (app *LifeCycleApp) OnPause() {
 	fmt.Println("OnPause()")
 }
 
-func (app *LifeCycle) OnStop() {
+func (app *LifeCycleApp) OnStop() {
 	fmt.Println("OnStop()")
 }
 
-func (app *LifeCycle) OnDispose() error {
+func (app *LifeCycleApp) OnDispose() error {
 	fmt.Println("OnDispose()")
 	return nil
 }
 
 func main() {
-	tge.Run(&LifeCycle{})
+	tge.Run(&LifeCycleApp{})
 }
