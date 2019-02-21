@@ -18,7 +18,7 @@ func (app *EventApp) OnCreate(settings *tge.Settings) error {
 	settings.Fullscreen = false
 	settings.FPS = 100
 	settings.TPS = 1
-	settings.EventMask = tge.MouseEventEnabled | tge.ScrollEventEnabled | tge.KeyEventEnabled
+	settings.EventMask = tge.AllEventsEnabled
 	return nil
 }
 
@@ -51,7 +51,19 @@ func (app *EventApp) OnScrollEvent(event tge.ScrollEvent) {
 }
 
 func (app *EventApp) OnKeyEvent(event tge.KeyEvent) {
-	fmt.Printf("OnKeyEvent() : %v\n", event)
+	if event.Type == tge.TypeDown {
+		fmt.Println("OnKeyEvent :")
+		fmt.Printf("   Value : %s\n", event.Value)
+		fmt.Printf("   IsValid : %v\n", event.Key.IsValid())
+		fmt.Printf("   IsPrintable : %v\n", event.Key.IsPrintable())
+		fmt.Printf("   IsAction : %v\n", event.Key.IsAction())
+		fmt.Printf("   IsFunction : %v\n", event.Key.IsFunction())
+		fmt.Printf("   IsModifier : %v\n", event.Key.IsModifier())
+		fmt.Printf("   IsCompose : %v\n", event.Key.IsCompose())
+	}
+	if event.Key == tge.KeyCodeEscape {
+		app.Runtime.Stop()
+	}
 }
 
 func (app *EventApp) OnPause() {
