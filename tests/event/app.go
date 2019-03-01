@@ -16,7 +16,6 @@ func (app *EventApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "EventApp"
 	settings.Fullscreen = false
-	settings.FPS = 100
 	settings.TPS = 1
 	settings.EventMask = tge.AllEventsEnabled
 	return nil

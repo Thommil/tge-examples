@@ -19,7 +19,6 @@ func (app *LifeCycleApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "LifeCycleApp"
 	settings.Fullscreen = false
-	settings.FPS = 10
 	settings.TPS = 10
 	settings.EventMask = tge.AllEventsDisable
 	return nil

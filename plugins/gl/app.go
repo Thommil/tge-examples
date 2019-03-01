@@ -26,8 +26,7 @@ func (app *GLApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GLApp"
 	settings.Fullscreen = false
-	settings.FPS = 500
-	settings.TPS = 500
+	settings.TPS = 100
 	settings.EventMask = tge.AllEventsDisable
 	return nil
 }

@@ -18,7 +18,6 @@ func (app *AssetsApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "AssetsAppApp"
 	settings.Fullscreen = false
-	settings.FPS = 10
 	settings.TPS = 10
 	settings.EventMask = tge.AllEventsDisable
 	return nil
