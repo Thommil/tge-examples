@@ -33,7 +33,7 @@ type G3NApp struct {
 func (app *G3NApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "G3NApp"
-	settings.Fullscreen = false
+	settings.Fullscreen = true
 	settings.TPS = 100
 	settings.EventMask = tge.MouseMotionEventEnabled | tge.ScrollEventEnabled | tge.MouseButtonEventEnabled
 	return nil
@@ -121,6 +121,7 @@ func (app *G3NApp) OnResume() {
 
 func (app *G3NApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	mutex.Lock()
+	app.gls.Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
 	_, err := app.renderer.Render(app.camPersp)
 	mutex.Unlock()
 
@@ -132,7 +133,7 @@ func (app *G3NApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 
 func (app *G3NApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
 	mutex.Lock()
-	app.scene.RotateY(0.01)
+	//app.scene.RotateY(0.01)
 	app.orbCtrl.RotateUp(float32(app.orbCtrlMvt[0]) * 0.01)
 	app.orbCtrl.RotateLeft(float32(app.orbCtrlMvt[1]) * 0.01)
 	app.orbCtrl.Zoom(float32(app.orbCtrlMvt[2]) * 0.5)
