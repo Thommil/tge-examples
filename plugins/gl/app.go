@@ -10,32 +10,28 @@ import (
 )
 
 type GLApp struct {
-	Runtime        tge.Runtime
-	TPSStartTime   time.Time
-	TPSPrinterTime time.Time
-	FPSStartTime   time.Time
-	FPSPrinterTime time.Time
-	TPSCounter     float64
-	FPSCounter     float64
-	program        gl.Program
-	vertexBuffer   gl.Buffer
-	indexBuffer    gl.Buffer
+	runtime      tge.Runtime
+	program      gl.Program
+	vertexBuffer gl.Buffer
+	indexBuffer  gl.Buffer
 }
 
 func (app *GLApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GLApp"
-	settings.Fullscreen = false
-	settings.TPS = 100
+	settings.Fullscreen = true
+	settings.TPS = 1
 	settings.EventMask = tge.AllEventsDisable
 	return nil
 }
 
 func (app *GLApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
-	app.Runtime = runtime
+	app.runtime = runtime
 
-	runtime.Use(gl.GetPlugin())
+	runtime.Use(gl.GetInstance())
+
+	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 
 	app.initProgram()
 	app.initBuffers()
@@ -43,40 +39,22 @@ func (app *GLApp) OnStart(runtime tge.Runtime) error {
 	return nil
 }
 
-func (app *GLApp) OnResize(width int, height int) {
-	fmt.Printf("OnResize(%d, %d)\n", width, height)
-	gl.Viewport(0, 0, width, height)
+func (app *GLApp) OnResize(event tge.Event) bool {
+	//gl.Viewport(0, 0, int(event.(tge.ResizeEvent).Width), int(event.(tge.ResizeEvent).Height))
+	return false
 }
 
 func (app *GLApp) OnResume() {
 	fmt.Println("OnResume()")
-	app.TPSStartTime = time.Now()
-	app.FPSStartTime = time.Now()
-	app.FPSPrinterTime = time.Now().Add(10 * time.Second)
-	app.TPSPrinterTime = time.Now().Add(10 * time.Second)
-	app.TPSCounter = 0
-	app.FPSCounter = 0
-
 	gl.ClearColor(0.15, 0.04, 0.15, 1)
 }
 
 func (app *GLApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
 	app.draw()
-	now := time.Now()
-	app.FPSCounter++
-	if now.After(app.FPSPrinterTime) {
-		fmt.Printf("%f FPS\n", app.FPSCounter/now.Sub(app.FPSStartTime).Seconds())
-		app.FPSPrinterTime = now.Add(10 * time.Second)
-	}
 }
 
 func (app *GLApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
-	now := time.Now()
-	app.TPSCounter++
-	if now.After(app.TPSPrinterTime) {
-		fmt.Printf("%f TPS\n", app.TPSCounter/now.Sub(app.TPSStartTime).Seconds())
-		app.TPSPrinterTime = now.Add(10 * time.Second)
-	}
+
 }
 
 func (app *GLApp) initProgram() {
@@ -219,6 +197,7 @@ func (app *GLApp) OnPause() {
 
 func (app *GLApp) OnStop() {
 	fmt.Println("OnStop()")
+	app.runtime.Unsubscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 }
 
 func (app *GLApp) OnDispose() error {
