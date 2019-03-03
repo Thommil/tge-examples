@@ -101,7 +101,7 @@ func (app *G3NApp) OnStart(runtime tge.Runtime) error {
 	l2.SetPosition(0, 20, 0)
 	app.scene.Add(l2)
 
-	app.camPersp = camera.NewPerspective(65, 1, 0.01, 1000)
+	app.camPersp = camera.NewPerspective(65, 1, 0.1, 100)
 	app.camPersp.SetPosition(10, 10, 5)
 	app.camPersp.LookAt(&math32.Vector3{0, 6, 0})
 
@@ -111,7 +111,9 @@ func (app *G3NApp) OnStart(runtime tge.Runtime) error {
 }
 
 func (app *G3NApp) OnResize(event tge.Event) bool {
+	fmt.Printf("OnResize() : %v\n", event)
 	app.camPersp.SetAspect(float32(event.(tge.ResizeEvent).Width) / float32(event.(tge.ResizeEvent).Height))
+	app.gls.Viewport(0, 0, event.(tge.ResizeEvent).Width, event.(tge.ResizeEvent).Height)
 	return false
 }
 
