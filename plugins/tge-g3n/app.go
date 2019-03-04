@@ -8,8 +8,6 @@ import (
 
 	tge "github.com/thommil/tge"
 
-	g3n "github.com/thommil/tge-g3n"
-
 	camera "github.com/thommil/tge-g3n/camera"
 	control "github.com/thommil/tge-g3n/camera/control"
 	core "github.com/thommil/tge-g3n/core"
@@ -42,7 +40,6 @@ func (app *G3NApp) OnCreate(settings *tge.Settings) error {
 func (app *G3NApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.runtime = runtime
-	runtime.Use(g3n.Load())
 
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 	runtime.Subscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)

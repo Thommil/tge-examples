@@ -29,8 +29,6 @@ func (app *GLApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.runtime = runtime
 
-	runtime.Use(gl.Load())
-
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 
 	app.initProgram()
@@ -40,7 +38,7 @@ func (app *GLApp) OnStart(runtime tge.Runtime) error {
 }
 
 func (app *GLApp) OnResize(event tge.Event) bool {
-	//gl.Viewport(0, 0, int(event.(tge.ResizeEvent).Width), int(event.(tge.ResizeEvent).Height))
+	gl.Viewport(0, 0, int(event.(tge.ResizeEvent).Width), int(event.(tge.ResizeEvent).Height))
 	return false
 }
 
