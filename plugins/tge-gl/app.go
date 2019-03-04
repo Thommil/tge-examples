@@ -29,7 +29,7 @@ func (app *GLApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.runtime = runtime
 
-	runtime.Use(gl.GetInstance())
+	runtime.Use(gl.Load())
 
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 

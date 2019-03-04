@@ -42,7 +42,7 @@ func (app *G3NApp) OnCreate(settings *tge.Settings) error {
 func (app *G3NApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.runtime = runtime
-	runtime.Use(g3n.GetInstance())
+	runtime.Use(g3n.Load())
 
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 	runtime.Subscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)
