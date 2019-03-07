@@ -3,7 +3,6 @@ package main
 import (
 	bytes "bytes"
 	fmt "fmt"
-	sync "sync"
 	time "time"
 
 	tge "github.com/thommil/tge"
@@ -32,7 +31,6 @@ func (app *G3NApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "G3NApp"
 	settings.Fullscreen = true
-	settings.TPS = 100
 	settings.EventMask = tge.MouseMotionEventEnabled | tge.ScrollEventEnabled | tge.MouseButtonEventEnabled
 	return nil
 }
@@ -118,28 +116,20 @@ func (app *G3NApp) OnResume() {
 	fmt.Println("OnResume()")
 }
 
-func (app *G3NApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
-	mutex.Lock()
+func (app *G3NApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
+	<-syncChan
 	app.gls.Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
-	_, err := app.renderer.Render(app.camPersp)
-	mutex.Unlock()
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		app.runtime.Stop()
-	}
+	app.renderer.Render(app.camPersp)
 }
 
-func (app *G3NApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
-	mutex.Lock()
-	//app.scene.RotateY(0.01)
+func (app *G3NApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
 	app.orbCtrl.RotateUp(float32(app.orbCtrlMvt[0]) * 0.01)
 	app.orbCtrl.RotateLeft(float32(app.orbCtrlMvt[1]) * 0.01)
 	app.orbCtrl.Zoom(float32(app.orbCtrlMvt[2]) * 0.5)
 	app.orbCtrlMvt[0] = 0
 	app.orbCtrlMvt[1] = 0
 	app.orbCtrlMvt[2] = 0
-	mutex.Unlock()
+	syncChan <- app.orbCtrl
 }
 
 var mouseDown bool
@@ -183,9 +173,8 @@ func (app *G3NApp) OnStop() {
 	app.runtime.Unsubscribe(tge.ScrollEvent{}.Channel(), app.OnScrollEvent)
 }
 
-func (app *G3NApp) OnDispose() error {
+func (app *G3NApp) OnDispose() {
 	fmt.Println("OnDispose()")
-	return nil
 }
 
 func main() {

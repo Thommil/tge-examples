@@ -2,7 +2,6 @@ package main
 
 import (
 	fmt "fmt"
-	sync "sync"
 	time "time"
 
 	tge "github.com/thommil/tge"
@@ -13,14 +12,14 @@ type GLApp struct {
 	runtime      tge.Runtime
 	program      gl.Program
 	vertexBuffer gl.Buffer
+	vao          gl.VertexArray
 	indexBuffer  gl.Buffer
 }
 
 func (app *GLApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "GLApp"
-	settings.Fullscreen = true
-	settings.TPS = 1
+	settings.Fullscreen = false
 	settings.EventMask = tge.AllEventsDisable
 	return nil
 }
@@ -31,6 +30,7 @@ func (app *GLApp) OnStart(runtime tge.Runtime) error {
 
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 
+	gl.ClearColor(0.15, 0.04, 0.15, 1)
 	app.initProgram()
 	app.initBuffers()
 
@@ -44,15 +44,15 @@ func (app *GLApp) OnResize(event tge.Event) bool {
 
 func (app *GLApp) OnResume() {
 	fmt.Println("OnResume()")
-	gl.ClearColor(0.15, 0.04, 0.15, 1)
 }
 
-func (app *GLApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *GLApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
+	<-syncChan
 	app.draw()
 }
 
-func (app *GLApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
-
+func (app *GLApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
+	syncChan <- true
 }
 
 func (app *GLApp) initProgram() {
@@ -60,8 +60,9 @@ func (app *GLApp) initProgram() {
 	//// Shaders ////
 
 	// Vertex shader source code
-	vertCode := `attribute vec2 coordinates;
-		
+	vertCode := fmt.Sprintf("#version %s\n", gl.GetGLSLVersion())
+	vertCode += `layout(location = 0) in vec2 coordinates;
+
 	void main() {
 		gl_Position = vec4(coordinates, 0.0, 1.0);
 	}`
@@ -76,15 +77,13 @@ func (app *GLApp) initProgram() {
 	gl.CompileShader(vertShader)
 
 	//fragment shader source code
-	fragCode := `#ifdef GL_ES
-		#define LOWP lowp
-		precision mediump float;
-	#else
-		#define LOWP
-	#endif
-	
+	fragCode := fmt.Sprintf("#version %s\n", gl.GetGLSLVersion())
+	fragCode += `precision mediump float;
+
+	out vec4 FragColor;
+
 	void main() {
-		gl_FragColor = vec4(0.85, 0.8, 0.8, 1.0);
+		FragColor = vec4(0.85, 0.8, 0.8, 1.0);
 	}`
 
 	// Create fragment shader object
@@ -111,7 +110,6 @@ func (app *GLApp) initProgram() {
 
 	// Use the combined shader program object
 	gl.UseProgram(app.program)
-
 }
 
 func (app *GLApp) initBuffers() {
@@ -123,6 +121,12 @@ func (app *GLApp) initBuffers() {
 		0.0, 1.0,
 	}
 
+	// Create VAO
+	app.vao = gl.CreateVertexArray()
+
+	// Bin VAO
+	gl.BindVertexArray(app.vao)
+
 	// Create buffer
 	app.vertexBuffer = gl.CreateBuffer()
 
@@ -130,7 +134,6 @@ func (app *GLApp) initBuffers() {
 	gl.BindBuffer(gl.ARRAY_BUFFER, app.vertexBuffer)
 
 	// Pass data to buffer
-
 	gl.BufferData(gl.ARRAY_BUFFER, gl.Float32ToBytes(vertices), gl.STATIC_DRAW)
 
 	// Unbind buffer
@@ -152,10 +155,14 @@ func (app *GLApp) initBuffers() {
 
 	// Unbind buffer
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.BufferNone)
+
 }
 
 func (app *GLApp) draw() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
+
+	// Bin VAO
+	gl.BindVertexArray(app.vao)
 
 	// Bind vertex buffer object
 	gl.BindBuffer(gl.ARRAY_BUFFER, app.vertexBuffer)
@@ -172,21 +179,8 @@ func (app *GLApp) draw() {
 	// Point an attribute to the currently bound VBO
 	gl.VertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0)
 
-	//// Drawing the triangle ////
 	// Draw the triangle
 	gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_BYTE, 0)
-}
-
-func (app *GLApp) OnMouseEvent(event tge.MouseEvent) {
-	// NOP
-}
-
-func (app *GLApp) OnScrollEvent(event tge.ScrollEvent) {
-	// NOP
-}
-
-func (app *GLApp) OnKeyEvent(event tge.KeyEvent) {
-	// NOP
 }
 
 func (app *GLApp) OnPause() {
@@ -198,9 +192,8 @@ func (app *GLApp) OnStop() {
 	app.runtime.Unsubscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 }
 
-func (app *GLApp) OnDispose() error {
+func (app *GLApp) OnDispose() {
 	fmt.Println("OnDispose()")
-	return nil
 }
 
 func main() {

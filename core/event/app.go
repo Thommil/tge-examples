@@ -2,7 +2,6 @@ package main
 
 import (
 	fmt "fmt"
-	sync "sync"
 	time "time"
 
 	tge "github.com/thommil/tge"
@@ -22,7 +21,6 @@ func (app *EventApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "EventApp"
 	settings.Fullscreen = false
-	settings.TPS = 1
 	settings.EventMask = tge.AllEventsEnabled
 	return nil
 }
@@ -57,10 +55,12 @@ func (app *EventApp) OnResume() {
 	fmt.Println("OnResume()")
 }
 
-func (app *EventApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *EventApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
+	<-syncChan
 }
 
-func (app *EventApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
+func (app *EventApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
+	syncChan <- true
 }
 
 func (app *EventApp) OnResize(event tge.Event) bool {
@@ -113,9 +113,8 @@ func (app *EventApp) OnStop() {
 	app.runtime.Unsubscribe(tge.KeyEvent{}.Channel(), app.OnKeyEvent)
 }
 
-func (app *EventApp) OnDispose() error {
+func (app *EventApp) OnDispose() {
 	fmt.Println("OnDispose()")
-	return nil
 }
 
 func main() {

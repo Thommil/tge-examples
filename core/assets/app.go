@@ -4,7 +4,6 @@ import (
 	"bytes"
 	fmt "fmt"
 	"image/jpeg"
-	sync "sync"
 	time "time"
 
 	tge "github.com/thommil/tge"
@@ -16,9 +15,8 @@ type AssetsApp struct {
 
 func (app *AssetsApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
-	settings.Name = "AssetsAppApp"
+	settings.Name = "AssetsApp"
 	settings.Fullscreen = false
-	settings.TPS = 10
 	settings.EventMask = tge.AllEventsDisable
 	return nil
 }
@@ -29,19 +27,15 @@ func (app *AssetsApp) OnStart(runtime tge.Runtime) error {
 	return nil
 }
 
-func (app *AssetsApp) OnResize(width int, height int) {
-	fmt.Printf("OnResize(%d, %d)\n", width, height)
-}
-
 func (app *AssetsApp) OnResume() {
 	fmt.Println("OnResume()")
-	if txtContent, err := app.Runtime.LoadAsset("test.txt"); err != nil {
+	if txtContent, err := app.Runtime.GetAsset("test.txt"); err != nil {
 		fmt.Printf("Error loading TXT file : %s\n", err)
 	} else {
 		fmt.Printf("test.txt : %s\n", string(txtContent))
 	}
 
-	if jpgContent, err := app.Runtime.LoadAsset("test.jpg"); err != nil {
+	if jpgContent, err := app.Runtime.GetAsset("test.jpg"); err != nil {
 		fmt.Printf("Error loading JPG file : %s\n", err)
 	} else {
 		if img, err := jpeg.Decode(bytes.NewBuffer(jpgContent)); err != nil {
@@ -71,25 +65,12 @@ func (app *AssetsApp) OnResume() {
 
 }
 
-func (app *AssetsApp) OnRender(elapsedTime time.Duration, mutex *sync.Mutex) {
-	fmt.Println("OnRender()")
+func (app *AssetsApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
+	<-syncChan
 }
 
-func (app *AssetsApp) OnTick(elapsedTime time.Duration, mutex *sync.Mutex) {
-	fmt.Println("OnTick()")
-
-}
-
-func (app *AssetsApp) OnMouseEvent(event tge.MouseEvent) {
-	// NOP
-}
-
-func (app *AssetsApp) OnScrollEvent(event tge.ScrollEvent) {
-	// NOP
-}
-
-func (app *AssetsApp) OnKeyEvent(event tge.KeyEvent) {
-	// NOP
+func (app *AssetsApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
+	syncChan <- true
 }
 
 func (app *AssetsApp) OnPause() {
@@ -100,9 +81,8 @@ func (app *AssetsApp) OnStop() {
 	fmt.Println("OnStop()")
 }
 
-func (app *AssetsApp) OnDispose() error {
+func (app *AssetsApp) OnDispose() {
 	fmt.Println("OnDispose()")
-	return nil
 }
 
 func main() {
