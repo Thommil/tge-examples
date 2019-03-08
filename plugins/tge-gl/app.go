@@ -137,7 +137,7 @@ func (app *GLApp) initBuffers() {
 	gl.BufferData(gl.ARRAY_BUFFER, gl.Float32ToBytes(vertices), gl.STATIC_DRAW)
 
 	// Unbind buffer
-	gl.BindBuffer(gl.ARRAY_BUFFER, gl.BufferNone)
+	gl.BindBuffer(gl.ARRAY_BUFFER, gl.NONE)
 
 	//// INDEX BUFFER ////
 	var indices = []byte{
@@ -154,7 +154,7 @@ func (app *GLApp) initBuffers() {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
 
 	// Unbind buffer
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.BufferNone)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.NONE)
 
 }
 
