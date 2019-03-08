@@ -1,5 +1,5 @@
 # TGE Examples
-Download tge repository:
+Download repository:
 ```
 git clone https://github.com/thommil/tge-examples
 ```
