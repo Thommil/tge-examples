@@ -1,4 +1,5 @@
-# TGE Examples
+<h1 align="center">TGE - Examples</h1>
+
 Download repository:
 ```
 git clone https://github.com/thommil/tge-examples
