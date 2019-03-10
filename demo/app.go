@@ -8,6 +8,7 @@ import (
 	tge "github.com/thommil/tge"
 
 	camera "github.com/thommil/tge-g3n/camera"
+	control "github.com/thommil/tge-g3n/camera/control"
 	core "github.com/thommil/tge-g3n/core"
 	gls "github.com/thommil/tge-g3n/gls"
 	light "github.com/thommil/tge-g3n/light"
@@ -16,27 +17,31 @@ import (
 	renderer "github.com/thommil/tge-g3n/renderer"
 )
 
-type G3NApp struct {
-	runtime  tge.Runtime
-	gls      *gls.GLS
-	scene    *core.Node
-	camPersp *camera.Perspective
-	renderer *renderer.Renderer
+type DemoApp struct {
+	runtime    tge.Runtime
+	gls        *gls.GLS
+	scene      *core.Node
+	camPersp   *camera.Perspective
+	renderer   *renderer.Renderer
+	orbCtrl    *control.OrbitControl
+	orbCtrlMvt [3]int32
 }
 
-func (app *G3NApp) OnCreate(settings *tge.Settings) error {
+func (app *DemoApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "G3NApp"
 	settings.Fullscreen = true
-	settings.EventMask = tge.AllEventsDisable
+	settings.EventMask = tge.MouseMotionEventEnabled | tge.ScrollEventEnabled | tge.MouseButtonEventEnabled
 	return nil
 }
 
-func (app *G3NApp) OnStart(runtime tge.Runtime) error {
+func (app *DemoApp) OnStart(runtime tge.Runtime) error {
 	fmt.Println("OnStart()")
 	app.runtime = runtime
 
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
+	runtime.Subscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)
+	runtime.Subscribe(tge.ScrollEvent{}.Channel(), app.OnScrollEvent)
 
 	var err error
 
@@ -95,42 +100,83 @@ func (app *G3NApp) OnStart(runtime tge.Runtime) error {
 	app.camPersp.SetPosition(10, 10, 5)
 	app.camPersp.LookAt(&math32.Vector3{0, 6, 0})
 
+	app.orbCtrl = control.NewOrbitControl(app.camPersp)
+
 	return nil
 }
 
-func (app *G3NApp) OnResize(event tge.Event) bool {
+func (app *DemoApp) OnResize(event tge.Event) bool {
 	fmt.Printf("OnResize() : %v\n", event)
 	app.camPersp.SetAspect(float32(event.(tge.ResizeEvent).Width) / float32(event.(tge.ResizeEvent).Height))
 	app.gls.Viewport(0, 0, event.(tge.ResizeEvent).Width, event.(tge.ResizeEvent).Height)
 	return false
 }
 
-func (app *G3NApp) OnResume() {
+func (app *DemoApp) OnResume() {
 	fmt.Println("OnResume()")
 }
 
-func (app *G3NApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
+func (app *DemoApp) OnRender(elapsedTime time.Duration, syncChan <-chan interface{}) {
 	<-syncChan
 	app.gls.Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
 	app.renderer.Render(app.camPersp)
 }
 
-func (app *G3NApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
-	syncChan <- true
+func (app *DemoApp) OnTick(elapsedTime time.Duration, syncChan chan<- interface{}) {
+	app.orbCtrl.RotateUp(float32(app.orbCtrlMvt[0]) * 0.01)
+	app.orbCtrl.RotateLeft(float32(app.orbCtrlMvt[1]) * 0.01)
+	app.orbCtrl.Zoom(float32(app.orbCtrlMvt[2]) * 0.5)
+	app.orbCtrlMvt[0] = 0
+	app.orbCtrlMvt[1] = 0
+	app.orbCtrlMvt[2] = 0
+	syncChan <- app.orbCtrl
 }
 
-func (app *G3NApp) OnPause() {
+var mouseDown bool
+var lastMoveEvent tge.MouseEvent
+
+func (app *DemoApp) OnMouseEvent(event tge.Event) bool {
+	e := event.(tge.MouseEvent)
+	switch e.Type {
+	case tge.TypeDown:
+		mouseDown = e.Button == tge.ButtonLeft
+	case tge.TypeUp:
+		mouseDown = !(e.Button == tge.ButtonLeft)
+		lastMoveEvent.X = 0
+		lastMoveEvent.Y = 0
+	case tge.TypeMove:
+		if mouseDown {
+			if lastMoveEvent.X != 0 || lastMoveEvent.Y != 0 {
+				app.orbCtrlMvt[0] += e.Y - lastMoveEvent.Y
+				app.orbCtrlMvt[1] += e.X - lastMoveEvent.X
+			}
+			lastMoveEvent = e
+		}
+	}
+	return false
+}
+
+func (app *DemoApp) OnScrollEvent(event tge.Event) bool {
+	e := event.(tge.ScrollEvent)
+	app.orbCtrlMvt[2] += -e.Y
+	return false
+}
+
+func (app *DemoApp) OnPause() {
 	fmt.Println("OnPause()")
 }
 
-func (app *G3NApp) OnStop() {
+func (app *DemoApp) OnStop() {
 	fmt.Println("OnStop()")
+	app.runtime.Unsubscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
+	app.runtime.Unsubscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)
+	app.runtime.Unsubscribe(tge.ScrollEvent{}.Channel(), app.OnScrollEvent)
 }
 
-func (app *G3NApp) OnDispose() {
+func (app *DemoApp) OnDispose() {
 	fmt.Println("OnDispose()")
 }
 
 func main() {
-	tge.Run(&G3NApp{})
+	tge.Run(&DemoApp{})
 }
