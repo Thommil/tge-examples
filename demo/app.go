@@ -6,6 +6,7 @@ import (
 	time "time"
 
 	tge "github.com/thommil/tge"
+	gesture "github.com/thommil/tge-gesture"
 
 	camera "github.com/thommil/tge-g3n/camera"
 	control "github.com/thommil/tge-g3n/camera/control"
@@ -24,14 +25,14 @@ type DemoApp struct {
 	camPersp   *camera.Perspective
 	renderer   *renderer.Renderer
 	orbCtrl    *control.OrbitControl
-	orbCtrlMvt [3]int32
+	orbCtrlMvt [3]float32
 }
 
 func (app *DemoApp) OnCreate(settings *tge.Settings) error {
 	fmt.Println("OnCreate()")
 	settings.Name = "G3NApp"
 	settings.Fullscreen = true
-	settings.EventMask = tge.MouseMotionEventEnabled | tge.ScrollEventEnabled | tge.MouseButtonEventEnabled
+	settings.EventMask = tge.AllEventsEnabled
 	return nil
 }
 
@@ -42,6 +43,7 @@ func (app *DemoApp) OnStart(runtime tge.Runtime) error {
 	runtime.Subscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 	runtime.Subscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)
 	runtime.Subscribe(tge.ScrollEvent{}.Channel(), app.OnScrollEvent)
+	runtime.Subscribe(gesture.PinchEvent{}.Channel(), app.OnPinchEVent)
 
 	var err error
 
@@ -141,14 +143,14 @@ func (app *DemoApp) OnMouseEvent(event tge.Event) bool {
 	case tge.TypeDown:
 		mouseDown = e.Button == tge.ButtonLeft
 	case tge.TypeUp:
-		mouseDown = !(e.Button == tge.ButtonLeft)
+		mouseDown = false
 		lastMoveEvent.X = 0
 		lastMoveEvent.Y = 0
 	case tge.TypeMove:
 		if mouseDown {
 			if lastMoveEvent.X != 0 || lastMoveEvent.Y != 0 {
-				app.orbCtrlMvt[0] += e.Y - lastMoveEvent.Y
-				app.orbCtrlMvt[1] += e.X - lastMoveEvent.X
+				app.orbCtrlMvt[0] += float32(e.Y - lastMoveEvent.Y)
+				app.orbCtrlMvt[1] += float32(e.X - lastMoveEvent.X)
 			}
 			lastMoveEvent = e
 		}
@@ -158,7 +160,13 @@ func (app *DemoApp) OnMouseEvent(event tge.Event) bool {
 
 func (app *DemoApp) OnScrollEvent(event tge.Event) bool {
 	e := event.(tge.ScrollEvent)
-	app.orbCtrlMvt[2] += -e.Y
+	app.orbCtrlMvt[2] += float32(-e.Y)
+	return false
+}
+
+func (app *DemoApp) OnPinchEVent(event tge.Event) bool {
+	e := event.(gesture.PinchEvent)
+	app.orbCtrlMvt[2] += -float32(e.Delta) * 0.1
 	return false
 }
 
@@ -171,6 +179,7 @@ func (app *DemoApp) OnStop() {
 	app.runtime.Unsubscribe(tge.ResizeEvent{}.Channel(), app.OnResize)
 	app.runtime.Unsubscribe(tge.MouseEvent{}.Channel(), app.OnMouseEvent)
 	app.runtime.Unsubscribe(tge.ScrollEvent{}.Channel(), app.OnScrollEvent)
+	app.runtime.Unsubscribe(gesture.PinchEvent{}.Channel(), app.OnPinchEVent)
 }
 
 func (app *DemoApp) OnDispose() {
