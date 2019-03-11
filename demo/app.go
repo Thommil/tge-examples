@@ -141,7 +141,7 @@ func (app *DemoApp) OnMouseEvent(event tge.Event) bool {
 	e := event.(tge.MouseEvent)
 	switch e.Type {
 	case tge.TypeDown:
-		mouseDown = e.Button == tge.ButtonLeft
+		mouseDown = e.Button&tge.ButtonLeftOrTouchFirst != 0
 	case tge.TypeUp:
 		mouseDown = false
 		lastMoveEvent.X = 0
@@ -167,6 +167,9 @@ func (app *DemoApp) OnScrollEvent(event tge.Event) bool {
 func (app *DemoApp) OnPinchEVent(event tge.Event) bool {
 	e := event.(gesture.PinchEvent)
 	app.orbCtrlMvt[2] += -float32(e.Delta) * 0.1
+	mouseDown = false
+	lastMoveEvent.X = 0
+	lastMoveEvent.Y = 0
 	return false
 }
 
