@@ -56,11 +56,9 @@ func (app *AudioApp) InitAudio() error {
 	if app.stereoPanNode, err = audio.CreateStereoPannerNode(); err != nil {
 		return err
 	}
-	// destination is connected at resume state only
-	app.stereoPanNode.Connect(app.gainNode)
-	app.audioInit = true
 
-	app.gainNode.Connect(app.destinationNode)
+	app.stereoPanNode.Connect(app.gainNode).Connect(app.destinationNode)
+	app.audioInit = true
 
 	return nil
 }
@@ -114,7 +112,9 @@ func (app *AudioApp) OnTick(elaspedTime time.Duration, syncChan chan<- interface
 func (app *AudioApp) OnPause() {
 	fmt.Println("OnPause()")
 	// Close sound
-	app.gainNode.Disconnect(app.destinationNode)
+	if app.audioInit {
+		app.gainNode.Disconnect(app.destinationNode)
+	}
 }
 
 func (app *AudioApp) OnStop() {
