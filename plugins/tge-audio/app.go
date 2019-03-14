@@ -11,7 +11,6 @@ import (
 type AudioApp struct {
 	runtime         tge.Runtime
 	audioInit       bool
-	sampleData      []byte
 	sampleBuffer    audio.Buffer
 	stereoPanNode   audio.StereoPannerNode
 	gainNode        audio.GainNode
@@ -41,7 +40,7 @@ func (app *AudioApp) InitAudio() error {
 
 	//Buffer (should be done in a loading screen off course)
 	fmt.Println("Loading bass.wav in buffer")
-	if app.sampleBuffer, err = audio.CreateBuffer("bass.wav"); err != nil {
+	if app.sampleBuffer, err = audio.CreateBuffer("left-right.mp3"); err != nil {
 		return err
 	}
 
@@ -95,7 +94,13 @@ func (app *AudioApp) OnMouseEvent(event tge.Event) bool {
 			fmt.Printf("ERROR: %s\n", err)
 		} else {
 			sourceNode.Connect(app.stereoPanNode)
-			sourceNode.Start(false, 0, 0)
+			if mouseEvent.X < app.width/2 {
+				// Left chunk
+				sourceNode.Start(0, 0.5, false)
+			} else {
+				// Right chunk
+				sourceNode.Start(0.5, 0.5, false)
+			}
 		}
 	}
 	return false
