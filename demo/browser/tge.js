@@ -76,6 +76,35 @@
             }
         },
 
+        createAudioBuffer(audioCtx, path, callback) {
+            fetch('./assets/' + path).then((response) => {
+                if(response.ok) {                    
+                    return response.arrayBuffer()           
+                } else {
+                    throw new Error(response.statusText)
+                }
+            })
+            .then((audioData) => {
+                return audioCtx.decodeAudioData(audioData)
+            })
+            .then((buffer) => {
+                callback(buffer, null)
+            })
+            .catch((error) => {
+                callback(null, error)
+            })
+        },
+
+        createMediaAudioElement(audioCtx, path) {
+            let elm = document.createElement('audio')
+            elm.setAttribute('src','./assets/' + path)
+            document.body.appendChild(elm)
+            return {
+                htmlElement : elm,
+                mediaAudioElement : audioCtx.createMediaElementSource(elm)
+            }
+        },
+
         stop() {
             canvasEl.classList.remove('start');
             canvasEl.classList.add('stop');
@@ -88,6 +117,7 @@
 
     window.onload = function(){
         window.go = new Go();
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
         if(WebAssembly.instantiateStreaming) {
             WebAssembly.instantiateStreaming(fetch("main.wasm"), window.go.importObject).then((result) => {
                 window.go.run(result.instance);

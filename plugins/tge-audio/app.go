@@ -39,7 +39,7 @@ func (app *AudioApp) InitAudio() error {
 	var err error
 
 	//Buffer (should be done in a loading screen off course)
-	fmt.Println("Loading bass.wav in buffer")
+	fmt.Println("Loading left-right.mp3 in buffer")
 	if app.sampleBuffer, err = audio.CreateBuffer("left-right.mp3"); err != nil {
 		return err
 	}
@@ -57,6 +57,24 @@ func (app *AudioApp) InitAudio() error {
 	}
 
 	app.stereoPanNode.Connect(app.gainNode).Connect(app.destinationNode)
+
+	//Music (should be done in a loading screen off course)
+	fmt.Println("Loading music.mp3 in media element")
+	var mediaElementSourceNode audio.MediaElementSourceNode
+	if mediaElementSourceNode, err = audio.CreateMediaElementSourceNode("music.mp3"); err != nil {
+		return err
+	}
+
+	var mediaElementGainNode audio.GainNode
+	if mediaElementGainNode, err = audio.CreateGainNode(); err != nil {
+		return err
+	}
+	mediaElementGainNode.Gain(0.3)
+	mediaElementSourceNode.Connect(mediaElementGainNode).Connect(app.destinationNode)
+
+	fmt.Println("Start playing music")
+	mediaElementSourceNode.Play(true)
+
 	app.audioInit = true
 
 	return nil
@@ -96,10 +114,10 @@ func (app *AudioApp) OnMouseEvent(event tge.Event) bool {
 			sourceNode.Connect(app.stereoPanNode)
 			if mouseEvent.X < app.width/2 {
 				// Left chunk
-				sourceNode.Start(0, 0.5, false)
+				sourceNode.Start(0, 0, 0.5, false, 0, 0)
 			} else {
 				// Right chunk
-				sourceNode.Start(0.5, 0.5, false)
+				sourceNode.Start(0, 0.5, 0.5, false, 0, 0)
 			}
 		}
 	}
